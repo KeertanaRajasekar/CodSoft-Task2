@@ -1,0 +1,68 @@
+# Import necessary libraries
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import pandas as pd
+
+# Load the Iris dataset
+print("Loading the Iris dataset...")
+iris = load_iris()
+
+# Create a DataFrame for better understanding
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df['Species'] = iris.target
+df['Species'] = df['Species'].map({0: 'setosa', 1: 'versicolor', 2: 'virginica'})
+
+print("\nFirst 5 rows of the Iris dataset:")
+print(df.head())
+
+print("\nDataset Information:")
+print(df.info())
+
+# Features and target split
+X = iris.data  # Sepal and petal measurements
+y = iris.target  # Species labels
+
+# Splitting the dataset into training and testing sets
+print("\nSplitting data into training and testing sets (80%-20%)...")
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature scaling (Standardizing the dataset)
+print("Scaling the features using StandardScaler...\n")
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Building a Random Forest Classifier
+print("Training a Random Forest Classifier...\n")
+model = RandomForestClassifier(random_state=42, n_estimators=100)
+model.fit(X_train, y_train)
+
+# Making predictions on the test set
+print("Making predictions on the test set...\n")
+y_pred = model.predict(X_test)
+
+# Model evaluation
+print("Evaluating the model...\n")
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Model Accuracy: {accuracy:.2f}\n")
+
+print("Classification Report:")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+print("\nConfusion Matrix:")
+conf_matrix = confusion_matrix(y_test, y_pred)
+print(conf_matrix)
+
+# Formatting confusion matrix for better understanding
+print("\nFormatted Confusion Matrix:")
+for i, label in enumerate(iris.target_names):
+    print(f"True {label}: {conf_matrix[i][i]} (Correctly classified as {label})")
+
+# Display predictions (optional)
+print("\nSample Predictions:")
+print("True Labels    Predicted Labels")
+for true, pred in zip(y_test[:10], y_pred[:10]):
+    print(f"{iris.target_names[true]:<15} {iris.target_names[pred]}")
